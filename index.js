@@ -10,18 +10,122 @@ function go() {
 
 
 
-	tileGrid = $('#tileGrid');
+	var tileGrid = $('#tileGrid');
+	var inputGrid = $('#inputGrid');
+	var defaultInputGrid = getDefaultInputGrid(SIZE);
+
+	var animation = {
+		tileGrid: null,
+		prev: null,
+		next: null,
+		solutionArray: null,
+		solutionIndex: 0,
+		SIZE: 3,
+
+		setButtons: function(prev, next) {
+			this.prev = prev;
+			this.next = next;
+
+			that = this;
+
+			$(this.prev).click(function() {
+				if (that.solutionIndex !== 0) {
+					that.solutionIndex--;
+					that.drawTileData(that.solutionArray[that.solutionIndex]);
+				}
+			});
+
+			$(this.next).click(function() {
+				if (that.solutionIndex !== that.solutionArray.length - 1) {
+					that.solutionIndex++;
+					that.drawTileData(that.solutionArray[that.solutionIndex]);
+				}
+			});
+
+		},
+
+		setSolutionArray: function(solutionArray) {
+			this.solutionArray = solutionArray;
+			this.solutionIndex = 0;
+			this.drawTileData(this.solutionArray[0]);
+		},
+
+		drawTileData(tileData) {
+			var i = 0
+			$(tileGrid).find(".gridcell").each(function() {
+				var row = Math.floor(i / SIZE);
+				var col = i % SIZE;
+				$(this).text(tileData[row][col]);
+				if (tileData[row][col] === 0) {
+					$(this).addClass("zerocell");
+				} else {
+					$(this).removeClass("zerocell");
+				}
+				i++;
+			});
+		}
+
+	};
+
+	/////////////////////////////////
+	///////////////////////////////// ENCAPSULATE INTO ONCLICK SOLVE
+	/////////////////////////////////
+
 	var dataArray = getDataArray();
 	drawTiles(tileGrid, dataArray);
+	drawTiles(inputGrid, defaultInputGrid, "");
+
+	animation.setButtons($('#prev'), $('#next'));
+	//animation.setSolutionArray(getSolution(dataArray));
+	var callbackSetSolutionArray = function(data) {
+		animation.setSolutionArray(data);
+	}
+	//getSolution(dataArray, callbackSetSolutionArray);
+
+	/////////////////////////////////
+	/////////////////////////////////
+	/////////////////////////////////
+	/////////////////////////////////
+
 
 
 
 	/* ********** HELPERS ********** */
 	function getDataArray() {
-		return [1, 2, 3, 4, 5, 6, 7, 8, 0];
+		return [1, 2, 3, 4, 5, 6, 7, 0, 8];
 	}
 
-	function drawTiles(tileGrid, dataArray) {
+	function getDefaultInputGrid(size) {
+		var ar = [];
+		for (var i = 1; i < size * size; i++) {
+			ar.push(i);
+		}
+		ar.push(0);
+		return ar;
+	}
+
+	function getSolution(dataArray, callback) {
+
+			//turn array into padded number string
+			var dataString = dataArray.toString().replace(/,/g, ' ');
+			dataString = "\"" + dataString + "\"";
+
+			console.log(dataString);
+			$.ajax({
+				url: API_ENDPOINT,
+				type: "POST",
+				data: dataString,
+				async: false,
+				success: function(data) {
+					data = JSON.parse(data);
+					//console.log(data[0]);
+					callback(data);
+					//return data;
+				}
+			});
+	}
+
+	function drawTiles(tileGrid, dataArray, extraClassName) {
 
 		$(tileGrid).empty();
 		setupTilegrid(tileGrid);
@@ -36,12 +140,18 @@ function go() {
 			}
 			
 			function appendRow(tileGrid) {
+
+				var gridClass = 'col-xs-4 gridcell square ';
+
+				if (typeof(extraClassName === "string")) {
+					gridClass += extraClassName;
+				}
 				var row = $('<div/>', {
 					class: 'row'
 				});
 				for (var j = 0; j < SIZE; j++) {
 					$('<div/>', {
-					    class: 'col-md-4 gridcell square',
+					    class: gridClass,
 					    text: 'cell'
 					}).appendTo(row);
 				}

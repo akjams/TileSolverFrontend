@@ -10,3 +10,7 @@
 .zerocell {
 	background-color: grey;
 }
+
+.editable {
+	contenteditable: true;
+}
