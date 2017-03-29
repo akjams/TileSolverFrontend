@@ -201,7 +201,6 @@ function go() {
 				url: API_ENDPOINT,
 				type: "POST",
 				data: dataString,
-				async: false,
 				success: function(data) {
 					try {
 						console.log(data);
