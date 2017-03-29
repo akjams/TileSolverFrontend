@@ -5,7 +5,7 @@ window.onload = go;
 function go() {
 
 	/* **** SET UP **** */
-	var API_ENDPOINT = "https://dfq6ate2ul.execute-api.us-east-1.amazonaws.com/prod/TileFunction";
+	var API_ENDPOINT = "//dfq6ate2ul.execute-api.us-east-1.amazonaws.com/prod/TileFunction";
 	var SIZE = 3;
 	var TOTAL_SIZE = 9;
 	var animation = getAnimation();
