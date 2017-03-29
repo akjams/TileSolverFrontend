@@ -4,95 +4,123 @@ window.onload = go;
 
 function go() {
 
+	/* **** SET UP **** */
 	var API_ENDPOINT = "https://dfq6ate2ul.execute-api.us-east-1.amazonaws.com/prod/TileFunction";
 	var SIZE = 3;
-
-
-
-
+	var animation = getAnimation();
 	var tileGrid = $('#tileGrid');
 	var inputGrid = $('#inputGrid');
-	var defaultInputGrid = getDefaultInputGrid(SIZE);
+	var messageField = $('#message');
 
-	var animation = {
-		tileGrid: null,
-		prev: null,
-		next: null,
-		solutionArray: null,
-		solutionIndex: 0,
-		SIZE: 3,
+	setUp();
+	/* ****        **** */
 
-		setButtons: function(prev, next) {
-			this.prev = prev;
-			this.next = next;
 
-			that = this;
+	function setUp() {
+		
+		animation.setButtons($('#prev'), $('#next'));
 
-			$(this.prev).click(function() {
-				if (that.solutionIndex !== 0) {
-					that.solutionIndex--;
-					that.drawTileData(that.solutionArray[that.solutionIndex]);
-				}
-			});
+		var defaultInputGrid = getDefaultInputGrid(SIZE);
+		drawTiles(inputGrid, defaultInputGrid, "<textarea/>");
+		drawTiles(tileGrid, defaultInputGrid, "<div/>");
 
-			$(this.next).click(function() {
-				if (that.solutionIndex !== that.solutionArray.length - 1) {
-					that.solutionIndex++;
-					that.drawTileData(that.solutionArray[that.solutionIndex]);
-				}
-			});
+		$('#solve').click(onClickSolve);
+	}
 
-		},
 
-		setSolutionArray: function(solutionArray) {
-			this.solutionArray = solutionArray;
-			this.solutionIndex = 0;
-			this.drawTileData(this.solutionArray[0]);
-		},
-
-		drawTileData(tileData) {
-			var i = 0
-			$(tileGrid).find(".gridcell").each(function() {
-				var row = Math.floor(i / SIZE);
-				var col = i % SIZE;
-				$(this).text(tileData[row][col]);
-				if (tileData[row][col] === 0) {
-					$(this).addClass("zerocell");
-				} else {
-					$(this).removeClass("zerocell");
-				}
-				i++;
-			});
-		}
-
-	};
-
-	/////////////////////////////////
-	///////////////////////////////// ENCAPSULATE INTO ONCLICK SOLVE
-	/////////////////////////////////
-
-	var dataArray = getDataArray();
-	drawTiles(tileGrid, dataArray);
-	drawTiles(inputGrid, defaultInputGrid, "");
-
-	animation.setButtons($('#prev'), $('#next'));
-	//animation.setSolutionArray(getSolution(dataArray));
-	var callbackSetSolutionArray = function(data) {
+	function callbackSetSolutionArray(data) {
 		animation.setSolutionArray(data);
 	}
-	//getSolution(dataArray, callbackSetSolutionArray);
-
-	/////////////////////////////////
-	/////////////////////////////////
-	/////////////////////////////////
-	/////////////////////////////////
 
 
+	function onClickSolve() {
+		var dataArray = getDataArray(inputGrid);
+		console.log(dataArray);
+		if (validDataArray(dataArray, SIZE * SIZE)) {
+			getSolution(dataArray, callbackSetSolutionArray);
+			setMessage("Solving");
+		} else {
+			setMessage("Invalid input. Please enter numbers 0 through 8");
+		}
+	}	
+
+	function setMessage(m) {
+		$(messageField).val(m);
+	}
+
+	function validDataArray(ar, size) {
+		for (var i = 0; i < size; i++) {
+			if (ar.indexOf(i) === -1) {
+				return true;
+			}
+		}
+		return ar.length === size;
+	}
+
+	function getAnimation() {
+		var animation = {
+			tileGrid: null,
+			prev: null,
+			next: null,
+			solutionArray: null,
+			solutionIndex: 0,
+			SIZE: 3,
+
+			setButtons: function(prev, next) {
+				this.prev = prev;
+				this.next = next;
+
+				var that = this;
+
+				$(this.prev).click(function() {
+					if (that.solutionIndex !== 0) {
+						that.solutionIndex--;
+						that.drawTileData(that.solutionArray[that.solutionIndex]);
+					}
+				});
+
+				$(this.next).click(function() {
+					if (that.solutionIndex !== that.solutionArray.length - 1) {
+						that.solutionIndex++;
+						that.drawTileData(that.solutionArray[that.solutionIndex]);
+					}
+				});
+
+			},
+
+			setSolutionArray: function(solutionArray) {
+				this.solutionArray = solutionArray;
+				this.solutionIndex = 0;
+				this.drawTileData(this.solutionArray[0]);
+			},
+
+			drawTileData(tileData) {
+				var i = 0
+				$(tileGrid).find(".gridcell").each(function() {
+					var row = Math.floor(i / SIZE);
+					var col = i % SIZE;
+					$(this).text(tileData[row][col]);
+					if (tileData[row][col] === 0) {
+						$(this).addClass("zerocell");
+					} else {
+						$(this).removeClass("zerocell");
+					}
+					i++;
+				});
+			}
+
+		};
+		return animation;
+	}
 
 
 	/* ********** HELPERS ********** */
-	function getDataArray() {
-		return [1, 2, 3, 4, 5, 6, 7, 0, 8];
+	function getDataArray(inputGrid) {
+		ar = [];
+		$(inputGrid).find('.gridcell').each(function() {
+			ar.push(parseInt($(this).val()));
+		});
+		return ar;
 	}
 
 	function getDefaultInputGrid(size) {
@@ -110,7 +138,6 @@ function go() {
 			var dataString = dataArray.toString().replace(/,/g, ' ');
 			dataString = "\"" + dataString + "\"";
 
-			console.log(dataString);
 			$.ajax({
 				url: API_ENDPOINT,
 				type: "POST",
@@ -125,12 +152,11 @@ function go() {
 			});
 	}
 
-	function drawTiles(tileGrid, dataArray, extraClassName) {
+	function drawTiles(tileGrid, dataArray, cellDivType) {
 
 		$(tileGrid).empty();
 		setupTilegrid(tileGrid);
 		setTileGridData(tileGrid, dataArray);
-
 
 		/* ********** Inner HELPERS ********** */
 
@@ -143,14 +169,11 @@ function go() {
 
 				var gridClass = 'col-xs-4 gridcell square ';
 
-				if (typeof(extraClassName === "string")) {
-					gridClass += extraClassName;
-				}
 				var row = $('<div/>', {
 					class: 'row'
 				});
 				for (var j = 0; j < SIZE; j++) {
-					$('<div/>', {
+					$(cellDivType, {
 					    class: gridClass,
 					    text: 'cell'
 					}).appendTo(row);
@@ -158,7 +181,6 @@ function go() {
 				$(tileGrid).append(row);
 			}
 		}
-
 		function setTileGridData(tileGrid, array) {
 			var i = 0
 			$(tileGrid).find(".gridcell").each(function() {
