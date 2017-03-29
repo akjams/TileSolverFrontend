@@ -23,8 +23,17 @@ function go() {
 		var defaultInputGrid = getDefaultInputGrid(SIZE);
 		drawTiles(inputGrid, defaultInputGrid, "<textarea/>");
 		drawTiles(tileGrid, defaultInputGrid, "<div/>");
-
 		$('#solve').click(onClickSolve);
+
+		setOnclickInputGreyZeros();
+	}
+
+	function setOnclickInputGreyZeros() {
+		$('textarea').change(function() {
+
+		      $(this).addClass(".zerocell");
+		      $(this).text("ALLO");
+		});
 	}
 
 
@@ -45,16 +54,19 @@ function go() {
 	}	
 
 	function setMessage(m) {
-		$(messageField).val(m);
+		$(messageField).text(m);
 	}
 
 	function validDataArray(ar, size) {
 		for (var i = 0; i < size; i++) {
 			if (ar.indexOf(i) === -1) {
-				return true;
+				return false;
 			}
 		}
-		return ar.length === size;
+		if (ar.length === size) {
+			return true;
+		}
+		return false;
 	}
 
 	function getAnimation() {
