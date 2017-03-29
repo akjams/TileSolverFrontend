@@ -1,7 +1,15 @@
+#header {
+	background-color: lightblue;
+	text-align: center;
+	font-size: 300%;
+}
+
 .gridcell {
 	width: 100px;
 	height: 100px;
-	background-color: red;
+	font: 20px sans-serif black;
+	font-weight: bold;
+	background-color: lightblue;
 	text-align: center;
 	line-height: 100px;
 	border: 1px solid black;
@@ -9,6 +17,10 @@
 
 .zerocell {
 	background-color: grey;
+}
+
+.invalidCell {
+	background-color: red;
 }
 
 .editable {

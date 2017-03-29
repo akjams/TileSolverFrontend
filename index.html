@@ -4,28 +4,47 @@
 		<title>Tile Puzzle Solver</title>
 		<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
 		<link rel="stylesheet" type="text/css" href="style.css">
+		<link rel="icon" 
+	      type="image/png" 
+	      href="resources/puzzle-favicon.png">
 	</head>
 	<body>
+
+		<nav id="header" class="navbar navbar-default bg-faded">
+			
+			<img id="puzzleImg" src="resources/bluePuzzle.png">
+			<b>Tile Solver</b>
+		</nav>
 
 		<div class="container">
 			<div class="jumbotron">
 
-				<div id="input" contenteditable="true">
-					Input
-					<div id="inputGrid">
-						
+				<div id="inputDiv">
+					<div class="alert alert-info">
+						Hi there, welcome to Tile Solver. Please enter in the numbers 1-8 in the grid. 0 specifies the "empty" tile. <br>
+						When you are ready press solve, and you will be given a shortest path solution you can click through. <br>
+						The solution state looks like: <br>
+						<blockquote>
+							1 2 3 <br>
+							4 5 6 <br> 
+							7 8 0 <br>
+						</blockquote>
+						Try it out!
 					</div>
+
+					<div id="inputGrid"></div>
 				</div>
 				<br><br>
 				
 				<button id="solve" type="button" class="btn btn-primary btn-large">Solve</button>
-				
+				<button id="newButton" type="button" class="btn btn-info btn-large">Enter a new board</button>
+
 				<div id="message" class="alert alert-info">
 					Press solve when ready.
 				</div>
 
 
-				<div id="game">
+				<div id="soluDiv">
 					Game
 					<div id="tileGrid">
 						<p id="hi"></p>

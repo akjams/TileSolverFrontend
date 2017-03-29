@@ -7,10 +7,16 @@ function go() {
 	/* **** SET UP **** */
 	var API_ENDPOINT = "https://dfq6ate2ul.execute-api.us-east-1.amazonaws.com/prod/TileFunction";
 	var SIZE = 3;
+	var TOTAL_SIZE = 9;
 	var animation = getAnimation();
+	var inputDiv = $('#inputDiv')
+	var soluDiv = $('#soluDiv');
 	var tileGrid = $('#tileGrid');
 	var inputGrid = $('#inputGrid');
 	var messageField = $('#message');
+	var solveButton = $('#solve');
+	var newGameButton = $('#newButton');
+	var gameStateManager = getGameStateManager();
 
 	setUp();
 	/* ****        **** */
@@ -23,16 +29,51 @@ function go() {
 		var defaultInputGrid = getDefaultInputGrid(SIZE);
 		drawTiles(inputGrid, defaultInputGrid, "<textarea/>");
 		drawTiles(tileGrid, defaultInputGrid, "<div/>");
-		$('#solve').click(onClickSolve);
-
+		$(solveButton).click(onClickSolve);
+		$(newGameButton).click(onClickNewGame);
 		setOnclickInputGreyZeros();
+		gameStateManager.setIntro();
+	}
+
+	function getGameStateManager() {
+		introList = [inputDiv, messageField, solveButton];
+		doneList = [soluDiv, messageField, newGameButton];
+		var gsm = {
+			setIntro: function() {
+				this.hideAll(doneList);
+				this.showAll(introList);
+			},
+			setDone: function() {
+				this.hideAll(introList);
+				this.showAll(doneList);
+			},
+			hideAll: function(ar) {
+				for (var i = 0; i < ar.length; i++) {
+					$(ar[i]).hide();
+				}
+			},
+			showAll: function(ar) {
+				for (var i = 0; i < ar.length; i++) {
+					$(ar[i]).show();
+				}
+			}
+		}
+		return gsm;
 	}
 
 	function setOnclickInputGreyZeros() {
 		$('textarea').change(function() {
-
-		      $(this).addClass(".zerocell");
-		      $(this).text("ALLO");
+			var num = parseInt($(this).val());
+			if (num === 0) {
+				$(this).removeClass("invalidCell");
+				$(this).addClass("zerocell");
+			} else if (num > 0 && num < TOTAL_SIZE) {
+				$(this).removeClass("invalidCell");
+				$(this).removeClass("zerocell");
+			} else {
+				$(this).removeClass("zerocell");
+				$(this).addClass("invalidCell");
+			}
 		});
 	}
 
@@ -41,13 +82,17 @@ function go() {
 		animation.setSolutionArray(data);
 	}
 
+	function onClickNewGame() {
+		console.log("NEWWW GAME");
+		gameStateManager.setIntro();
+	}
 
 	function onClickSolve() {
+		gameStateManager.setDone();
+		setMessage("Solving");
 		var dataArray = getDataArray(inputGrid);
-		console.log(dataArray);
 		if (validDataArray(dataArray, SIZE * SIZE)) {
 			getSolution(dataArray, callbackSetSolutionArray);
-			setMessage("Solving");
 		} else {
 			setMessage("Invalid input. Please enter numbers 0 through 8");
 		}
@@ -156,11 +201,19 @@ function go() {
 				data: dataString,
 				async: false,
 				success: function(data) {
-					data = JSON.parse(data);
-					//console.log(data[0]);
-					callback(data);
-					//return data;
+					try {
+						console.log(data);
+						data = JSON.parse(data);
+						callback(data);
+						setMessage("SUCCESS");
+					} catch (err) {
+						setMessage("That's an impossible board!");
+					}
+				},
+				error: function(data) {
+					setMessage("Server Error. Sorry :(");
 				}
+
 			});
 	}
 
