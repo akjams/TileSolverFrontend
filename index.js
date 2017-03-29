@@ -181,12 +181,14 @@ function go() {
 	}
 
 	function getDefaultInputGrid(size) {
-		var ar = [];
-		for (var i = 1; i < size * size; i++) {
-			ar.push(i);
-		}
-		ar.push(0);
-		return ar;
+		// var ar = [];
+		// for (var i = 1; i < size * size; i++) {
+		// 	ar.push(i);
+		// }
+		// ar.push(0);
+		// return ar;
+
+		return [5, 4, 1, 8, 3, 0, 2, 6, 7]
 	}
 
 	function getSolution(dataArray, callback) {
